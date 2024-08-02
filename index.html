@@ -1,0 +1,532 @@
+<html style="font-size: 16px;">
+<head><base href="https://mineomatics.com/"><title>MineMatic: Responsive Mining Adventure</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+    box-sizing: border-box;
+  }
+  #game-container {
+    background-color: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    text-align: center;
+    max-width: 600px;
+    width: 100%;
+  }
+  #mine-button {
+    font-size: 64px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.1s;
+  }
+  #mine-button:active {
+    transform: scale(0.95);
+  }
+  #resources, #upgrades, #stats, #achievements, #research, #special-items {
+    margin-top: 20px;
+  }
+  .upgrade-button, .research-button {
+    margin: 5px;
+    padding: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    background-color: #f0f0f0;
+    border: none;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+  }
+  .upgrade-button:hover, .research-button:hover {
+    background-color: #e0e0e0;
+  }
+  .upgrade-button:disabled, .research-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .upgrade-info, .research-info {
+    font-size: 14px;
+    color: #666;
+    margin-top: 5px;
+  }
+  #stats {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+  }
+  .stat {
+    background-color: #f0f0f0;
+    border-radius: 5px;
+    padding: 10px;
+    margin: 5px;
+    min-width: 120px;
+  }
+  .emoji-count {
+    font-size: 24px;
+    margin-right: 10px;
+  }
+  #achievements {
+    text-align: left;
+  }
+  .achievement {
+    margin: 5px 0;
+    padding: 5px;
+    background-color: #e0e0e0;
+    border-radius: 5px;
+  }
+  .achievement.unlocked {
+    background-color: #d4edda;
+  }
+  #ore-types, #special-items {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+  #prestige {
+    margin-top: 20px;
+  }
+  #event-log {
+    margin-top: 20px;
+    max-height: 100px;
+    overflow-y: auto;
+    text-align: left;
+    padding: 10px;
+    background-color: #f0f0f0;
+    border-radius: 5px;
+  }
+  
+  /* Responsive styles */
+  @media (max-width: 600px) {
+    body {
+      padding: 10px;
+    }
+    #game-container {
+      padding: 10px;
+    }
+    #mine-button {
+      font-size: 48px;
+    }
+    .upgrade-button, .research-button {
+      font-size: 14px;
+    }
+    .stat {
+      min-width: 100px;
+    }
+  }
+  
+  @media (max-width: 400px) {
+    #mine-button {
+      font-size: 36px;
+    }
+    .upgrade-button, .research-button {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .stat {
+      min-width: 80px;
+    }
+  }
+  
+  /* Made with love style */
+  #made-with-love {
+    position: fixed;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #f0f0f0;
+    padding: 10px 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    font-size: 14px;
+    font-weight: bold;
+  }
+  #made-with-love span {
+    color: red;
+  }
+</style>
+</head>
+<body>
+<div id="made-with-love">Made with <span>&#10084;</span> by Daniel M</div>
+<div id="game-container">
+  <h1>MineMatic 🏔️</h1>
+  <div id="resources">
+    <h2>Ores: <span id="ore-count">0</span> 🪨</h2>
+    <div id="ore-types">
+      <div>Iron: <span id="iron-count">0</span> ⚙️</div>
+      <div>Gold: <span id="gold-count">0</span> 🌟</div>
+      <div>Diamond: <span id="diamond-count">0</span> 💎</div>
+    </div>
+  </div>
+  <button id="mine-button">⛏️</button>
+  <div id="stats">
+    <div class="stat">
+      <div>Ores/click:</div>
+      <div id="ore-per-click">1</div>
+    </div>
+    <div class="stat">
+      <div>Ores/second:</div>
+      <div id="ore-per-second">0</div>
+    </div>
+  </div>
+  <div id="upgrades">
+    <h3>Upgrades</h3>
+    <button class="upgrade-button" id="pickaxe-upgrade">
+      <span><span class="emoji-count" id="pickaxe-emoji">⛏️</span>Upgrade Tool</span>
+      <span>Cost: <span id="pickaxe-cost">10</span> ores</span>
+    </button>
+    <div class="upgrade-info" id="pickaxe-info">Level: 0 | Effect: 1.5x ores/click</div>
+    
+    <button class="upgrade-button" id="drill-upgrade">
+      <span><span class="emoji-count" id="drill-emoji">🚧</span>Upgrade Drill</span>
+      <span>Cost: <span id="drill-cost">50</span> ores</span>
+    </button>
+    <div class="upgrade-info" id="drill-info">Level: 0 | Effect: +0.5 to all multipliers</div>
+    
+    <button class="upgrade-button" id="miner-upgrade">
+      <span><span class="emoji-count" id="miner-emoji">👷</span>Hire Miner</span>
+      <span>Cost: <span id="miner-cost">100</span> ores</span>
+    </button>
+    <div class="upgrade-info" id="miner-info">Count: 0 | Effect: +0.5 ore/s each</div>
+    
+    <button class="upgrade-button" id="mining-drill-upgrade">
+      <span><span class="emoji-count" id="mining-drill-emoji">🚜</span>Hire Mining Drill</span>
+      <span>Cost: <span id="mining-drill-cost">500</span> ores</span>
+    </button>
+    <div class="upgrade-info" id="mining-drill-info">Count: 0 | Effect: +2 ores/s each</div>
+  </div>
+  <div id="research">
+    <h3>Research</h3>
+    <button class="research-button" id="efficiency-research">
+      <span>🔬 Efficiency</span>
+      <span>Cost: <span id="efficiency-cost">1000</span> ores</span>
+    </button>
+    <div class="research-info" id="efficiency-info">Level: 0 | Effect: +5% to all production</div>
+    
+    <button class="research-button" id="automation-research">
+      <span>🤖 Automation</span>
+      <span>Cost: <span id="automation-cost">5000</span> ores</span>
+    </button>
+    <div class="research-info" id="automation-info">Level: 0 | Effect: Auto-upgrades cheaper upgrades</div>
+  </div>
+  <div id="special-items">
+    <h3>Special Items</h3>
+    <div>Ancient Artifact: <span id="artifact-count">0</span> 🏺</div>
+    <div>Lucky Charm: <span id="charm-count">0</span> 🍀</div>
+  </div>
+  <div id="achievements">
+    <h3>Achievements</h3>
+    <div class="achievement" id="achievement-1">🏆 Mine 100,000 ores</div>
+    <div class="achievement" id="achievement-2">🏆 Upgrade tool to level 20</div>
+    <div class="achievement" id="achievement-3">🏆 Hire 50 miners</div>
+    <div class="achievement" id="achievement-4">🏆 Find 1,000 diamonds</div>
+    <div class="achievement" id="achievement-5">🏆 Reach Efficiency Research level 10</div>
+  </div>
+  <div id="prestige">
+    <h3>Prestige</h3>
+    <button id="prestige-button" disabled>Prestige (Requires 10,000,000 ores)</button>
+    <div>Prestige Level: <span id="prestige-level">0</span></div>
+  </div>
+  <div id="event-log">
+    <h3>Event Log</h3>
+    <div id="log-content"></div>
+  </div>
+</div>
+
+<script>
+let ores = 0;
+let iron = 0;
+let gold = 0;
+let diamond = 0;
+let oresPerClick = 1;
+let oresPerSecond = 0;
+let pickaxeLevel = 0;
+let drillLevel = 0;
+let minerCount = 0;
+let miningDrillCount = 0;
+let achievements = [false, false, false, false, false];
+let prestigeLevel = 0;
+let prestigeMultiplier = 1;
+let efficiencyLevel = 0;
+let automationLevel = 0;
+let artifacts = 0;
+let luckyCharms = 0;
+
+const oreCountElement = document.getElementById('ore-count');
+const ironCountElement = document.getElementById('iron-count');
+const goldCountElement = document.getElementById('gold-count');
+const diamondCountElement = document.getElementById('diamond-count');
+const orePerClickElement = document.getElementById('ore-per-click');
+const orePerSecondElement = document.getElementById('ore-per-second');
+const mineButton = document.getElementById('mine-button');
+const pickaxeUpgradeButton = document.getElementById('pickaxe-upgrade');
+const drillUpgradeButton = document.getElementById('drill-upgrade');
+const minerUpgradeButton = document.getElementById('miner-upgrade');
+const miningDrillUpgradeButton = document.getElementById('mining-drill-upgrade');
+const efficiencyResearchButton = document.getElementById('efficiency-research');
+const automationResearchButton = document.getElementById('automation-research');
+const prestigeButton = document.getElementById('prestige-button');
+const prestigeLevelElement = document.getElementById('prestige-level');
+const artifactCountElement = document.getElementById('artifact-count');
+const charmCountElement = document.getElementById('charm-count');
+const logContent = document.getElementById('log-content');
+
+function updateDisplay() {
+  oreCountElement.textContent = Math.floor(ores);
+  ironCountElement.textContent = Math.floor(iron);
+  goldCountElement.textContent = Math.floor(gold);
+  diamondCountElement.textContent = Math.floor(diamond);
+  orePerClickElement.textContent = (oresPerClick * prestigeMultiplier * getEfficiencyMultiplier()).toFixed(1);
+  orePerSecondElement.textContent = (oresPerSecond * prestigeMultiplier * getEfficiencyMultiplier()).toFixed(1);
+  
+  document.getElementById('pickaxe-info').textContent = `Level: ${pickaxeLevel} | Effect: ${(Math.pow(1.5, pickaxeLevel)).toFixed(2)}x ores/click`;
+  document.getElementById('drill-info').textContent = `Level: ${drillLevel} | Effect: +${(drillLevel * 0.5).toFixed(1)} to all multipliers`;
+  document.getElementById('miner-info').textContent = `Count: ${minerCount} | Effect: +${(minerCount * 0.5 * (1 + drillLevel * 0.5)).toFixed(1)} ores/s`;
+  document.getElementById('mining-drill-info').textContent = `Count: ${miningDrillCount} | Effect: +${(miningDrillCount * 2 * (1 + drillLevel * 0.5)).toFixed(1)} ores/s`;
+
+  document.getElementById('pickaxe-emoji').textContent = pickaxeLevel > 0 ? '🔨'.repeat(Math.min(pickaxeLevel, 5)) : '⛏️';
+  document.getElementById('drill-emoji').textContent = '🚧'.repeat(Math.min(drillLevel + 1, 5));
+  document.getElementById('miner-emoji').textContent = '👷'.repeat(Math.min(minerCount, 5));
+  document.getElementById('mining-drill-emoji').textContent = '🚜'.repeat(Math.min(miningDrillCount, 5));
+
+  mineButton.textContent = pickaxeLevel > 10 ? '💎' : (pickaxeLevel > 5 ? '🔨' : '⛏️');
+
+  pickaxeUpgradeButton.disabled = ores < 10 * Math.pow(1.5, pickaxeLevel);
+  drillUpgradeButton.disabled = ores < 50 * Math.pow(2, drillLevel);
+  minerUpgradeButton.disabled = ores < 100 * Math.pow(1.5, minerCount);
+  miningDrillUpgradeButton.disabled = ores < 500 * Math.pow(1.8, miningDrillCount);
+  
+  efficiencyResearchButton.disabled = ores < 1000 * Math.pow(2, efficiencyLevel);
+  automationResearchButton.disabled = ores < 5000 * Math.pow(3, automationLevel);
+  
+  prestigeButton.disabled = ores < 10000000;
+  prestigeLevelElement.textContent = prestigeLevel;
+
+  document.getElementById('pickaxe-cost').textContent = Math.floor(10 * Math.pow(1.5, pickaxeLevel));
+  document.getElementById('drill-cost').textContent = Math.floor(50 * Math.pow(2, drillLevel));
+  document.getElementById('miner-cost').textContent = Math.floor(100 * Math.pow(1.5, minerCount));
+  document.getElementById('mining-drill-cost').textContent = Math.floor(500 * Math.pow(1.8, miningDrillCount));
+  
+  document.getElementById('efficiency-cost').textContent = Math.floor(1000 * Math.pow(2, efficiencyLevel));
+  document.getElementById('automation-cost').textContent = Math.floor(5000 * Math.pow(3, automationLevel));
+  
+  document.getElementById('efficiency-info').textContent = `Level: ${efficiencyLevel} | Effect: +${efficiencyLevel * 5}% to all production`;
+  document.getElementById('automation-info').textContent = `Level: ${automationLevel} | Effect: Auto-upgrades cheaper upgrades`;
+  
+  artifactCountElement.textContent = artifacts;
+  charmCountElement.textContent = luckyCharms;
+}
+
+function getEfficiencyMultiplier() {
+  return 1 + (efficiencyLevel * 0.05);
+}
+
+function mine() {
+  const mineAmount = oresPerClick * prestigeMultiplier * getEfficiencyMultiplier();
+  ores += mineAmount;
+  if (Math.random() < 0.1) iron += Math.ceil(mineAmount * 0.1);
+  if (Math.random() < 0.01) gold += Math.ceil(mineAmount * 0.05);
+  if (Math.random() < 0.001) {
+    diamond += Math.ceil(prestigeMultiplier);
+    checkAchievements();
+  }
+  
+  if (Math.random() < 0.001 * (1 + luckyCharms * 0.1)) {
+    artifacts++;
+    logEvent("You found an Ancient Artifact! 🏺");
+  }
+  
+  if (Math.random() < 0.0005 * (1 + artifacts * 0.05)) {
+    luckyCharms++;
+    logEvent("You discovered a Lucky Charm! 🍀");
+  }
+  
+  checkAchievements();
+  updateDisplay();
+}
+
+function upgradePickaxe() {
+  const cost = 10 * Math.pow(1.5, pickaxeLevel);
+  if (ores >= cost) {
+    ores -= cost;
+    pickaxeLevel++;
+    oresPerClick = Math.pow(1.5, pickaxeLevel) * (1 + drillLevel * 0.5);
+    checkAchievements();
+    updateDisplay();
+  }
+}
+
+function upgradeDrill() {
+  const cost = 50 * Math.pow(2, drillLevel);
+  if (ores >= cost) {
+    ores -= cost;
+    drillLevel++;
+    oresPerClick = Math.pow(1.5, pickaxeLevel) * (1 + drillLevel * 0.5);
+    oresPerSecond = calculateOresPerSecond();
+    updateDisplay();
+  }
+}
+
+function hireMiner() {
+  const cost = 100 * Math.pow(1.5, minerCount);
+  if (ores >= cost) {
+    ores -= cost;
+    minerCount++;
+    oresPerSecond = calculateOresPerSecond();
+    checkAchievements();
+    updateDisplay();
+  }
+}
+
+function hireMiningDrill() {
+  const cost = 500 * Math.pow(1.8, miningDrillCount);
+  if (ores >= cost) {
+    ores -= cost;
+    miningDrillCount++;
+    oresPerSecond = calculateOresPerSecond();
+    updateDisplay();
+  }
+}
+
+function calculateOresPerSecond() {
+  return (minerCount * 0.5 + miningDrillCount * 2) * (1 + drillLevel * 0.5);
+}
+" updateDisplay();
+}
+
+function upgradeEfficiency() {
+  const cost = 1000 * Math.pow(2, efficiencyLevel);
+  if (ores >= cost) {
+    ores -= cost;
+    efficiencyLevel++;
+    checkAchievements();
+    updateDisplay();
+  }
+}
+
+function upgradeAutomation() {
+  const cost = 5000 * Math.pow(3, automationLevel);
+  if (ores >= cost) {
+    ores -= cost;
+    automationLevel++;
+    updateDisplay();
+  }
+}
+
+function checkAchievements() {
+  if (!achievements[0] && ores >= 100000) {
+    achievements[0] = true;
+    document.getElementById('achievement-1').classList.add('unlocked');
+    logEvent("Achievement unlocked: Mine 100,000 ores! 🏆");
+  }
+  if (!achievements[1] && pickaxeLevel >= 20) {
+    achievements[1] = true;
+    document.getElementById('achievement-2').classList.add('unlocked');
+    logEvent("Achievement unlocked: Upgrade tool to level 20! 🏆");
+  }
+  if (!achievements[2] && minerCount >= 50) {
+    achievements[2] = true;
+    document.getElementById('achievement-3').classList.add('unlocked');
+    logEvent("Achievement unlocked: Hire 50 miners! 🏆");
+  }
+  if (!achievements[3] && diamond >= 1000) {
+    achievements[3] = true;
+    document.getElementById('achievement-4').classList.add('unlocked');
+    logEvent("Achievement unlocked: Find 1,000 diamonds! 🏆");
+  }
+  if (!achievements[4] && efficiencyLevel >= 10) {
+    achievements[4] = true;
+    document.getElementById('achievement-5').classList.add('unlocked');
+    logEvent("Achievement unlocked: Reach Efficiency Research level 10! 🏆");
+  }
+}
+
+function prestige() {
+  if (ores >= 10000000) {
+    prestigeLevel++;
+    prestigeMultiplier = 1 + prestigeLevel * 0.2;
+    logEvent(`Prestige level ${prestigeLevel} reached! All production multiplied by ${prestigeMultiplier.toFixed(1)}x 🎉`);
+    ores = 0;
+    iron = 0;
+    gold = 0;
+    diamond = 0;
+    oresPerClick = 1;
+    oresPerSecond = 0;
+    pickaxeLevel = 0;
+    drillLevel = 0;
+    minerCount = 0;
+    miningDrillCount = 0;
+    efficiencyLevel = 0;
+    automationLevel = 0;
+    updateDisplay();
+  }
+}
+
+function logEvent(message) {
+  const eventElement = document.createElement('div');
+  eventElement.textContent = message;
+  logContent.prepend(eventElement);
+  if (logContent.children.length > 5) {
+    logContent.removeChild(logContent.lastChild);
+  }
+}
+
+function gameLoop() {
+  const production = (oresPerSecond * prestigeMultiplier * getEfficiencyMultiplier()) / 10;
+  ores += production;
+  if (Math.random() < 0.05) iron += Math.ceil(production * 0.01);
+  if (Math.random() < 0.01) gold += Math.ceil(production * 0.005);
+  if (Math.random() < 0.001) diamond += Math.ceil(prestigeMultiplier);
+  
+  if (automationLevel > 0) {
+    autoUpgrade();
+  }
+  
+  checkAchievements();
+  updateDisplay();
+}
+
+function autoUpgrade() {
+  const upgrades = [
+    { condition: () => ores >= 10 * Math.pow(1.5, pickaxeLevel), action: upgradePickaxe },
+    { condition: () => ores >= 50 * Math.pow(2, drillLevel), action: upgradeDrill },
+    { condition: () => ores >= 100 * Math.pow(1.5, minerCount), action: hireMiner },
+    { condition: () => ores >= 500 * Math.pow(1.8, miningDrillCount), action: hireMiningDrill }
+  ];
+
+  for (let i = 0; i < automationLevel; i++) {
+    const availableUpgrades = upgrades.filter(upgrade => upgrade.condition());
+    if (availableUpgrades.length > 0) {
+      const randomUpgrade = availableUpgrades[Math.floor(Math.random() * availableUpgrades.length)];
+      randomUpgrade.action();
+    }
+  }
+}
+
+mineButton.addEventListener('click', mine);
+pickaxeUpgradeButton.addEventListener('click', upgradePickaxe);
+drillUpgradeButton.addEventListener('click', upgradeDrill);
+minerUpgradeButton.addEventListener('click', hireMiner);
+miningDrillUpgradeButton.addEventListener('click', hireMiningDrill);
+efficiencyResearchButton.addEventListener('click', upgradeEfficiency);
+automationResearchButton.addEventListener('click', upgradeAutomation);
+prestigeButton.addEventListener('click', prestige);
+
+setInterval(gameLoop, 100);
+updateDisplay();
+</script>
+</body>
+</html>
