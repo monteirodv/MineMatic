@@ -1,14 +1,9 @@
-<html><head><base href="https://dan.com"><title>MineMatic: Mobile-Friendly Mining Adventure</title>
+<html><head><title>MineMatic: Mobile-Friendly Mining Adventure</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <style>
   body {
     font-family: Arial, sans-serif;
     background-color: #f0f0f0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
     margin: 0;
     padding: 20px;
     box-sizing: border-box;
@@ -22,13 +17,10 @@
     text-align: center;
     max-width: 600px;
     width: 100%;
+    margin: 0 auto;
     position: relative;
   }
   #credits {
-    position: absolute;
-    top: -30px;
-    left: 0;
-    right: 0;
     text-align: center;
     font-size: 14px;
     color: #666;
@@ -36,6 +28,7 @@
     padding: 5px;
     border-radius: 5px;
     box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+    margin-bottom: 10px;
   }
   #mine-button {
     font-size: 64px;
@@ -162,8 +155,8 @@
 </style>
 </head>
 <body>
+<div id="credits">Made with ❤️ by Daniel M</div>
 <div id="game-container">
-  <div id="credits">Made with ❤️ by Daniel M</div>
   <h1>MineMatic 🏔️</h1>
   <div id="resources">
     <h2>Ores: <span id="ore-count">0</span> 🪨</h2>
