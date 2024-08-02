@@ -1,5 +1,5 @@
-<html><head><base href="https://dan/"><title>MineMatic: Responsive Mining Adventure</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<html><head><base href="https://dan.com"><title>MineMatic: Mobile-Friendly Mining Adventure</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <style>
   body {
     font-family: Arial, sans-serif;
@@ -12,6 +12,7 @@
     margin: 0;
     padding: 20px;
     box-sizing: border-box;
+    touch-action: manipulation;
   }
   #game-container {
     background-color: white;
@@ -21,6 +22,20 @@
     text-align: center;
     max-width: 600px;
     width: 100%;
+    position: relative;
+  }
+  #credits {
+    position: absolute;
+    top: -30px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 14px;
+    color: #666;
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 5px;
+    border-radius: 5px;
+    box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
   }
   #mine-button {
     font-size: 64px;
@@ -28,6 +43,10 @@
     border: none;
     cursor: pointer;
     transition: transform 0.1s;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
   }
   #mine-button:active {
     transform: scale(0.95);
@@ -48,6 +67,7 @@
     border: none;
     border-radius: 5px;
     transition: background-color 0.3s;
+    touch-action: manipulation;
   }
   .upgrade-button:hover, .research-button:hover {
     background-color: #e0e0e0;
@@ -139,29 +159,11 @@
       min-width: 80px;
     }
   }
-  
-  /* Made with love style */
-  #made-with-love {
-    position: fixed;
-    top: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #f0f0f0;
-    padding: 10px 20px;
-    border-radius: 5px;
-    box-shadow: 0 0 5px rgba(0,0,0,0.1);
-    font-size: 14px;
-    font-weight: bold;
-  }
-  #made-with-love span {
-    color: red;
-  }
 </style>
 </head>
 <body>
-<div id="made-with-love">Made with <span>&#10084;</span> by Daniel M</div>
-
 <div id="game-container">
+  <div id="credits">Made with ❤️ by Daniel M</div>
   <h1>MineMatic 🏔️</h1>
   <div id="resources">
     <h2>Ores: <span id="ore-count">0</span> 🪨</h2>
@@ -514,6 +516,11 @@ function autoUpgrade() {
   }
 }
 
+mineButton.addEventListener('touchstart', function(e) {
+  e.preventDefault();
+  mine();
+});
+
 mineButton.addEventListener('click', mine);
 pickaxeUpgradeButton.addEventListener('click', upgradePickaxe);
 drillUpgradeButton.addEventListener('click', upgradeDrill);
@@ -522,6 +529,11 @@ miningDrillUpgradeButton.addEventListener('click', hireMiningDrill);
 efficiencyResearchButton.addEventListener('click', upgradeEfficiency);
 automationResearchButton.addEventListener('click', upgradeAutomation);
 prestigeButton.addEventListener('click', prestige);
+
+// Prevent default touch behavior
+document.addEventListener('touchmove', function(e) {
+  e.preventDefault();
+}, { passive: false });
 
 setInterval(gameLoop, 100);
 updateDisplay();
