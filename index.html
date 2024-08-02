@@ -7,7 +7,7 @@
     margin: 0;
     padding: 20px;
     box-sizing: border-box;
-    touch-action: manipulation;
+    touch-action: pan-y;
   }
   #game-container {
     background-color: white;
@@ -523,10 +523,10 @@ efficiencyResearchButton.addEventListener('click', upgradeEfficiency);
 automationResearchButton.addEventListener('click', upgradeAutomation);
 prestigeButton.addEventListener('click', prestige);
 
-// Prevent default touch behavior
+// Allow vertical scrolling
 document.addEventListener('touchmove', function(e) {
-  e.preventDefault();
-}, { passive: false });
+  e.stopPropagation();
+}, { passive: true });
 
 setInterval(gameLoop, 100);
 updateDisplay();
